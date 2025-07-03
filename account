@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GroupSync - Project Coordination</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container { max-width: 800px; margin: 0 auto; }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .auth-container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .auth-header h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-group input.error {
+            border-color: #dc3545;
+        }
+        
+        .error-message {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        .btn {
+            width: 100%;
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .auth-switch {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e1e5e9;
+        }
+        
+        .auth-switch a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .auth-switch a:hover {
+            text-decoration: underline;
+        }
+        
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+        
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .main-app {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .nav-tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-tab.active {
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .nav-tab:hover:not(.active) {
+            color: #333;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .project-form {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .project-form textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .project-form select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .member-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .member-input input {
+            flex: 1;
+        }
+        
+        .add-member-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .add-member-btn:hover {
+            background: #5a6268;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .project-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .project-info h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .project-info p {
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .nav-tab {
+                min-width: 50%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 GroupSync</h1>
+            <p>Finally, group projects that don't suck</p>
+        </div>
+        
+        <!-- User Info (shown when logged in) -->
+        <div id="userInfo" class="user-info hidden">
+            <span>Welcome, <strong id="currentUserName"></strong>!</span>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+        
+        <!-- Login Form -->
+        <div id="loginPage" class="auth-container">
+            <div class="auth-header">
+                <h2>Welcome Back!</h2>
+                <p>Sign in to your GroupSync account</p>
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" placeholder="Enter your email" required>
+                    <div class="error-message" id="loginEmailError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                    <div class="error-message" id="loginPasswordError"></div>
+                </div>
+                
+                <button type="submit" class="btn">Sign In</button>
+                
+                <div class="auth-switch">
+                    <p>Don't have an account? <a onclick="showSignup()">Sign up here</a></p>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Signup Form -->
+        <div id="signupPage" class="auth-container hidden">
+            <div class="auth-header">
+                <h2>Join GroupSync</h2>
+                <p>Create your account to get started</p>
+            </div>
+            
+            <form id="signupForm">
+                <div class="form-group">
+                    <label for="signupName">Full Name</label>
+                    <input type="text" id="signupName" placeholder="Enter your full name" required>
+                    <div class="error-message" id="signupNameError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="signupEmail">Email</label>
+                    <input type="email" id="signupEmail" placeholder="Enter your email" required>
+                    <div class="error-message" id="signupEmailError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" placeholder="Create a password (min 6 characters)" required>
+                    <div class="error-message" id="signupPasswordError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" placeholder="Confirm your password" required>
+                    <div class="error-message" id="confirmPasswordError"></div>
+                </div>
+                
+                <button type="submit" class="btn">Create Account</button>
+                
+                <div class="auth-switch">
+                    <p>Already have an account? <a onclick="showLogin()">Sign in here</a></p>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Main App -->
+        <div id="mainApp" class="main-app hidden">
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="switchTab('project')">Project</button>
+                <button class="nav-tab" onclick="switchTab('team')">Team</button>
+                <button class="nav-tab" onclick="switchTab('settings')">Settings</button>
+            </div>
+            
+            <!-- Project Tab -->
+            <div id="projectTab" class="tab-content active">
+                <div id="projectForm" class="project-form">
+                    <h2>Create Your Project</h2>
+                    <div id="projectSuccess" class="success-message hidden">
+                        Project created successfully!
+                    </div>
+                    
+                    <form id="createProjectForm">
+                        <div class="form-group">
+                            <label for="projectName">Project Name</label>
+                            <input type="text" id="projectName" placeholder="e.g., Marketing Strategy Analysis" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="projectDesc">Description</label>
+                            <textarea id="projectDesc" placeholder="Brief description of the project..."></textarea>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="dueDate">Due Date</label>
+                                <input type="date" id="dueDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="projectType">Project Type</label>
+                                <select id="projectType">
+                                    <option value="research">Research Paper</option>
+                                    <option value="presentation">Presentation</option>
+                                    <option value="case-study">Case Study</option>
+                                    <option value="lab-report">Lab Report</option>
+                                    <option value="group-assignment">Group Assignment</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Team Members</label>
+                            <div id="membersList">
+                                <div class="member-input">
+                                    <input type="email" placeholder="teammate@email.com">
+                                    <button type="button" class="add-member-btn" onclick="addMemberInput()">+ Add</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn">Create Project</button>
+                    </form>
+                </div>
+                
+                <div id="projectInfo" class="project-info hidden">
+                    <h3 id="currentProjectName"></h3>
+                    <p><strong>Description:</strong> <span id="currentProjectDesc"></span></p>
+                    <p><strong>Due Date:</strong> <span id="currentProjectDue"></span></p>
+                    <p><strong>Type:</strong> <span id="currentProjectType"></span></p>
+                    <p><strong>Team Members:</strong> <span id="currentProjectMembers"></span></p>
+                    <button class="btn" onclick="editProject()" style="margin-top: 15px;">Edit Project</button>
+                </div>
+            </div>
+            
+            <!-- Team Tab -->
+            <div id="teamTab" class="tab-content">
+                <h2>Team Overview</h2>
+                <div id="teamContent">
+                    <p>Create a project to see team information.</p>
+                </div>
+            </div>
+            
+            <!-- Settings Tab -->
+            <div id="settingsTab" class="tab-content">
+                <h2>Account Settings</h2>
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" id="settingsName" placeholder="Your name">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="settingsEmail" placeholder="Your email" disabled>
+                </div>
+                <button class="btn" onclick="updateSettings()">Update Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // In-memory storage (replaces localStorage for simplicity)
+        let users = [];
+        let currentUser = null;
+        let currentProject = null;
+        
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            setMinDate();
+        });
+        
+        function setupEventListeners() {
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            document.getElementById('signupForm').addEventListener('submit', handleSignup);
+            document.getElementById('createProjectForm').addEventListener('submit', handleProjectCreation);
+        }
+        
+        function setMinDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('dueDate').min = today;
+        }
+        
+        // Authentication functions
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            clearErrors();
+            
+            if (!validateEmail(email)) {
+                showError('loginEmailError', 'Please enter a valid email');
+                return;
+            }
+            
+            if (!password) {
+                showError('loginPasswordError', 'Password is required');
+                return;
+            }
+            
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (!user) {
+                showError('loginPasswordError', 'Invalid email or password');
+                return;
+            }
+            
+            currentUser = user;
+            showMainApp();
+        }
+        
+        function handleSignup(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('signupName').value.trim();
+            const email = document.getElementById('signupEmail').value.trim();
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            clearErrors();
+            
+            let isValid = true;
+            
+            if (!name) {
+                showError('signupNameError', 'Name is required');
+                isValid = false;
+            }
+            
+            if (!validateEmail(email)) {
+                showError('signupEmailError', 'Please enter a valid email');
+                isValid = false;
+            } else if (users.find(u => u.email === email)) {
+                showError('signupEmailError', 'Email already exists');
+                isValid = false;
+            }
+            
+            if (password.length < 6) {
+                showError('signupPasswordError', 'Password must be at least 6 characters');
+                isValid = false;
+            }
+            
+            if (password !== confirmPassword) {
+                showError('confirmPasswordError', 'Passwords do not match');
+                isValid = false;
+            }
+            
+            if (!isValid) return;
+            
+            const newUser = {
+                id: Date.now(),
+                name: name,
+                email: email,
+                password: password
+            };
+            
+            users.push(newUser);
+            currentUser = newUser;
+            showMainApp();
+        }
+        
+        function handleProjectCreation(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('projectName').value.trim();
+            const desc = document.getElementById('projectDesc').value.trim();
+            const dueDate = document.getElementById('dueDate').value;
+            const type = document.getElementById('projectType').value;
+            
+            const memberInputs = document.querySelectorAll('#membersList input[type="email"]');
+            const members = Array.from(memberInputs)
+                .map(input => input.value.trim())
+                .filter(email => email && validateEmail(email));
+            
+            if (!name) {
+                alert('Project name is required');
+                return;
+            }
+            
+            if (!dueDate) {
+                alert('Due date is required');
+                return;
+            }
+            
+            currentProject = {
+                id: Date.now(),
+                name: name,
+                description: desc,
+                dueDate: dueDate,
+                type: type,
+                members: members,
+                owner: currentUser.email
+            };
+            
+            showProjectSuccess();
+            showProjectInfo();
+        }
+        
+        // UI functions
+        function showLogin() {
+            document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('signupPage').classList.add('hidden');
+        }
+        
+        function showSignup() {
+            document.getElementById('signupPage').classList.remove('hidden');
+            document.getElementById('loginPage').classList.add('hidden');
+        }
+        
+        function showMainApp() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('signupPage').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            document.getElementById('userInfo').classList.remove('hidden');
+            document.getElementById('currentUserName').textContent = currentUser.name;
+            
+            // Load user settings
+            document.getElementById('settingsName').value = currentUser.name;
+            document.getElementById('settingsEmail').value = currentUser.email;
+            
+            if (currentProject) {
+                showProjectInfo();
+            }
+        }
+        
+        function showProjectSuccess() {
+            document.getElementById('projectSuccess').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('projectSuccess').classList.add('hidden');
+            }, 3000);
+        }
+        
+        function showProjectInfo() {
+            document.getElementById('projectForm').classList.add('hidden');
+            document.getElementById('projectInfo').classList.remove('hidden');
+            
+            document.getElementById('currentProjectName').textContent = currentProject.name;
+            document.getElementById('currentProjectDesc').textContent = currentProject.description || 'No description';
+            document.getElementById('currentProjectDue').textContent = new Date(currentProject.dueDate).toLocaleDateString();
+            document.getElementById('currentProjectType').textContent = currentProject.type.charAt(0).toUpperCase() + currentProject.type.slice(1);
+            document.getElementById('currentProjectMembers').textContent = currentProject.members.length > 0 ? currentProject.members.join(', ') : 'None';
+            
+            updateTeamContent();
+        }
+        
+        function editProject() {
+            document.getElementById('projectForm').classList.remove('hidden');
+            document.getElementById('projectInfo').classList.add('hidden');
+            
+            // Pre-fill form with current project data
+            document.getElementById('projectName').value = currentProject.name;
+            document.getElementById('projectDesc').value = currentProject.description;
+            document.getElementById('dueDate').value = currentProject.dueDate;
+            document.getElementById('projectType').value = currentProject.type;
+            
+            // Clear existing member inputs and add current members
+            const membersList = document.getElementById('membersList');
+            membersList.innerHTML = '';
+            
+            if (currentProject.members.length > 0) {
+                currentProject.members.forEach(member => {
+                    const memberDiv = document.createElement('div');
+                    memberDiv.className = 'member-input';
+                    memberDiv.innerHTML = `
+                        <input type="email" value="${member}">
+                        <button type="button" class="add-member-btn" onclick="removeMemberInput(this)">Remove</button>
+                    `;
+                    membersList.appendChild(memberDiv);
+                });
+            }
+            
+            // Add empty input for new members
+            addMemberInput();
+        }
+        
+        function updateTeamContent() {
+            const teamContent = document.getElementById('teamContent');
+            if (currentProject) {
+                teamContent.innerHTML = `
+                    <div class="project-info">
+                        <h3>Project: ${currentProject.name}</h3>
+                        <p><strong>Team Size:</strong> ${currentProject.members.length + 1} members</p>
+                        <p><strong>Project Owner:</strong> ${currentProject.owner}</p>
+                        <p><strong>Members:</strong></p>
+                        <ul style="margin-left: 20px;">
+                            <li>${currentProject.owner} (Owner)</li>
+                            ${currentProject.members.map(member => `<li>${member}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            } else {
+                teamContent.innerHTML = '<p>Create a project to see team information.</p>';
+            }
+        }
+        
+        function addMemberInput() {
+            const membersList = document.getElementById('membersList');
+            const memberDiv = document.createElement('div');
+            memberDiv.className = 'member-input';
+            memberDiv.innerHTML = `
+                <input type="email" placeholder="teammate@email.com">
+                <button type="button" class="add-member-btn" onclick="addMemberInput()">+ Add</button>
+            `;
+            membersList.appendChild(memberDiv);
+            
+            // Change the last button to "Remove" except for the new one
+            const buttons = membersList.querySelectorAll('.add-member-btn');
+            if (buttons.length > 1) {
+                buttons[buttons.length - 2].textContent = 'Remove';
+                buttons[buttons.length - 2].onclick = function() { removeMemberInput(this); };
+            }
+        }
+        
+        function removeMemberInput(button) {
+            button.parentElement.remove();
+        }
+        
+        function switchTab(tabName) {
+            // Remove active class from all tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // Add active class to selected tab
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+        
+        function updateSettings() {
+            const newName = document.getElementById('settingsName').value.trim();
+            
+            if (!newName) {
+                alert('Name is required');
+                return;
+            }
+            
+            currentUser.name = newName;
+            document.getElementById('currentUserName').textContent = newName;
+            
+            // Update user in users array
+            const userIndex = users.findIndex(u => u.id === currentUser.id);
+            if (userIndex !== -1) {
+                users[userIndex] = currentUser;
+            }
+            
+            alert('Settings updated successfully!');
+        }
+        
+        function logout() {
+            currentUser = null;
+            currentProject = null;
+            document.getElementById('mainApp').classList.add('hidden');
+            document.getElementById('userInfo').classList.add('hidden');
+            document.getElementById('loginPage').classList.remove('hidden');
+            
+            // Clear forms
+            document.getElementById('loginForm').reset();
+            document.getElementById('signupForm').reset();
+            clearErrors();
+        }
+        
+        // Helper functions
+        function validateEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+        
+        function showError(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            errorElement.textContent = message;
+            errorElement.previousElementSibling.classList.add('error');
+        }
+        
+        function clearErrors() {
+            document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+            document.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
+        }
+    </script>
+</body>
+</html>
